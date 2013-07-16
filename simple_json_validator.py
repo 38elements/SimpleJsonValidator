@@ -43,7 +43,7 @@ class SimpleJsonValidator(object):
         key = str(key)
         path += "." + key
         if not isinstance(data, self.__structures) and not data in self.__types:
-            raise SchemaError("InValid type at key='%s' path='%s'.  schema is %s" % (key, path, pprint.pformat(data)))
+            raise SchemaError("InValid type at key=%s path=%s.  schema is %s" % (key, path, pprint.pformat(data)))
         if self.is_dict(data):
             self.check_schema_dict(data, path)
             for target_key, target_data in data.iteritems():
@@ -53,12 +53,47 @@ class SimpleJsonValidator(object):
             self.check_schema(data[0], "[0]", path)
         return True
 
-        
+    def validate_dict(self, data, schema, key, path):
+        pass
 
-    def validate(self, data, schema=None):
+    def validate_list(self, data, schema, key, path):
+        pass
+
+    def validate_string(self, data, schema, key, path):
+        if not self.is_string(data):
+            raise ValidationError("ValidationError: %s is not string. key=%s, path=%s, data=%s" % (key, path, str(data)))
+
+    def validate_number(self, data, schema, key, path):
+        if not self.is_number(data):
+            raise ValidationError("ValidationError: %s is not number. key=%s, path=%s, data=%s" % (key, path, str(data)))
+
+    def validate_float(self, data, schema, key, path):
+        if not self.is_float(data):
+            raise ValidationError("ValidationError: %s is not float. key=%s, path=%s, data=%s" % (key, path, str(data)))
+
+    def validate_bool(self, data, key, path):
+        if not self.is_bool(data):
+            raise ValidationError("ValidationError: %s is not bool. key=%s, path=%s, data=%s" % (key, path, str(data)))
+
+    def validate(self, data, schema=None, key="", path=""):
         schema = self.schema if schema == None else schema
-
-
+        key = str(key)
+        path += "." + key
+        if is_dict(schema):
+            pass
+        elif is_list(schema):
+            pass
+        elif schema in (int, long):
+            self.validate_number(data, key, path)
+        elif schema in (float,):
+            self.validate_float(data, key, path)
+        elif schema in (bool,):
+            self.validate_bool(data, key, path)
+        elif schema in (str, unicode):
+            self.validate_string(data, key, path)
+        else:
+            ValidationError("Not Support type: type is %s" % (str(schema),))
+        return True
 
 
 class ValidationError(Exception):
