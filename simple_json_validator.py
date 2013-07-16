@@ -54,20 +54,31 @@ class SimpleJsonValidator(object):
         return True
 
     def validate_dict(self, data, schema, key, path):
-        pass
+        if not self.is_dict(data):
+            raise ValidationError("ValidationError: %s is not dict. key=%s, path=%s, data=%s" % (key, path, pprint.pformat(data)))
+        if not len(data.keys()) == len(schema.keys()): 
+            raise ValidationError("ValidationError: sum of keys unmatch. key=%s, path=%s, data=%s, schema=%s" % (key, path, pprint.pformat(data), pprint.pformat(schema)))
+        for key, d in data: 
+            if not key in schema.keys():
+                raise ValidationError("ValidationError: key is not exist at schema. key=%s, path=%s, data=%s, schema=%s" % (key, path, pprint.pformat(data), pprint.pformat(schema)))
+            self.validate(d, schema[key], key, path)
+            
 
     def validate_list(self, data, schema, key, path):
-        pass
+        if not self.is_list(data):
+            raise ValidationError("ValidationError: %s is not list. key=%s, path=%s, data=%s" % (key, path, pprint.pformat(data)))
+        for i, d in enumerate(data):
+            self.validate(d, schema[0], ("[%d]" % i), path)
 
-    def validate_string(self, data, schema, key, path):
+    def validate_string(self, data, key, path):
         if not self.is_string(data):
             raise ValidationError("ValidationError: %s is not string. key=%s, path=%s, data=%s" % (key, path, str(data)))
 
-    def validate_number(self, data, schema, key, path):
+    def validate_number(self, data, key, path):
         if not self.is_number(data):
             raise ValidationError("ValidationError: %s is not number. key=%s, path=%s, data=%s" % (key, path, str(data)))
 
-    def validate_float(self, data, schema, key, path):
+    def validate_float(self, data, key, path):
         if not self.is_float(data):
             raise ValidationError("ValidationError: %s is not float. key=%s, path=%s, data=%s" % (key, path, str(data)))
 
@@ -76,12 +87,12 @@ class SimpleJsonValidator(object):
             raise ValidationError("ValidationError: %s is not bool. key=%s, path=%s, data=%s" % (key, path, str(data)))
 
     def validate(self, data, schema=None, key="", path=""):
-        schema = self.schema if schema == None else schema
+        schema = self.__schema if schema == None else schema
         key = str(key)
         path += "." + key
-        if is_dict(schema):
+        if self.is_dict(schema):
             pass
-        elif is_list(schema):
+        elif self.is_list(schema):
             pass
         elif schema in (int, long):
             self.validate_number(data, key, path)

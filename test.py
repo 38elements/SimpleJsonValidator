@@ -37,10 +37,49 @@ class SchemaTest(TestCase):
                                     }
                                 })
 
+
 class ValidationTest(TestCase):
 
     def setUp(self):
         pass
+
+    def test_validate(self):
+        schema = {
+                    "name": str,
+                    u"age": int,
+                    "bool": bool,
+                    "float": float,
+                    "card_id": [int],
+                    "friends": [
+                                    {
+                                        "name": str,
+                                        "card_id": [int]
+                                    }
+                                ]
+                 
+                    }
+        data = {
+                    "name": "foo",
+                    u"age": 22,
+                    "bool": True,
+                    "float": 1.22,
+                    "card_id": [1,2,3,4,5],
+                    "friends": [
+                                    {
+                                        "name": "ffff",
+                                        "card_id": [2,3,4]
+                                    },
+                                    {
+                                        "name": "feff",
+                                        "card_id": [22,32,42]
+                                    }
+                                ]
+                 
+                    }
+        sjv = SimpleJsonValidator(schema)
+        self.assertTrue(sjv.validate(data))
+
+
 
 
 if __name__ == '__main__':
