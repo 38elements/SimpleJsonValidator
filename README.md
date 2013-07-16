@@ -13,4 +13,37 @@ RedisやmemcacheでJsonを文字列で保存する際のチェックに用いる
 
 ```python
 # coding: utf-8
+from simple_json_validator import SimpleJsonValidator
+
+schema = {
+    "name": str,
+    "year": int,
+    "ids": [int],
+    "items": [
+        {
+            "id": int,
+            "name": str
+        }
+    ]
+}
+
+data = {
+    "name": "name1",
+    "year": 2000,
+    "ids": [20,3,61,21],
+    "items": [
+        {
+            "id": 43,
+            "name": "name2",
+        },
+        {
+            "id": 44,
+            "name": "name3",
+        },
+    ]
+}
+
+sjv = SimpleJsonValidator(schema)
+sjv.validate(data)
+//=>True
 ```
