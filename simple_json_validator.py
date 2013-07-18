@@ -55,45 +55,47 @@ class SimpleJsonValidator(object):
 
     def validate_dict(self, data, schema, key, path):
         if not self.is_dict(data):
-            raise ValidationError("ValidationError: %s is not dict. key=%s, path=%s, data=%s" % (key, path, pprint.pformat(data)))
+            raise ValidationError("ValidationError: %s is not dict. key=%s, path=%s, data=%s" % (pprint.pformat(data), key, path, pprint.pformat(data)))
         if not len(data.keys()) == len(schema.keys()): 
             raise ValidationError("ValidationError: sum of keys unmatch. key=%s, path=%s, data=%s, schema=%s" % (key, path, pprint.pformat(data), pprint.pformat(schema)))
-        for key, d in data: 
+        for key, d in data.iteritems(): 
             if not key in schema.keys():
-                raise ValidationError("ValidationError: key is not exist at schema. key=%s, path=%s, data=%s, schema=%s" % (key, path, pprint.pformat(data), pprint.pformat(schema)))
+                raise ValidationError("ValidationError: key is not exist at schema. key=%s, path=%s, data=%s, schema=%s" % (pprint.pformat(data), path, pprint.pformat(data), pprint.pformat(schema)))
             self.validate(d, schema[key], key, path)
             
 
     def validate_list(self, data, schema, key, path):
         if not self.is_list(data):
-            raise ValidationError("ValidationError: %s is not list. key=%s, path=%s, data=%s" % (key, path, pprint.pformat(data)))
+            raise ValidationError("ValidationError: %s is not list. key=%s, path=%s, data=%s" % (pprint.pformat(data), key, path, pprint.pformat(data)))
         for i, d in enumerate(data):
             self.validate(d, schema[0], ("[%d]" % i), path)
 
     def validate_string(self, data, key, path):
         if not self.is_string(data):
-            raise ValidationError("ValidationError: %s is not string. key=%s, path=%s, data=%s" % (key, path, str(data)))
+            raise ValidationError("ValidationError: %s is not string. key=%s, path=%s, data=%s" % (pprint.pformat(data), key, path, pprint.pformat(data)))
 
     def validate_number(self, data, key, path):
         if not self.is_number(data):
-            raise ValidationError("ValidationError: %s is not number. key=%s, path=%s, data=%s" % (key, path, str(data)))
+            raise ValidationError("ValidationError: %s is not number. key=%s, path=%s, data=%s" % (pprint.pformat(data), key, path, pprint.pformat(data)))
 
     def validate_float(self, data, key, path):
         if not self.is_float(data):
-            raise ValidationError("ValidationError: %s is not float. key=%s, path=%s, data=%s" % (key, path, str(data)))
+            raise ValidationError("ValidationError: %s is not float. key=%s, path=%s, data=%s" % (pprint.pformat(data), key, path, pprint.pformat(data)))
 
     def validate_bool(self, data, key, path):
         if not self.is_bool(data):
-            raise ValidationError("ValidationError: %s is not bool. key=%s, path=%s, data=%s" % (key, path, str(data)))
+            raise ValidationError("ValidationError: %s is not bool. key=%s, path=%s, data=%s" % (pprint.pformat(data), key, path, pprint.pformat(data)))
 
     def validate(self, data, schema=None, key="", path=""):
         schema = self.__schema if schema == None else schema
         key = str(key)
-        path += "." + key
+        if key:
+            path += "." + key
+        print path
         if self.is_dict(schema):
-            pass
+            self.validate_dict(data, schema, key, path)
         elif self.is_list(schema):
-            pass
+            self.validate_list(data, schema, key, path)
         elif schema in (int, long):
             self.validate_number(data, key, path)
         elif schema in (float,):

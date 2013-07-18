@@ -41,29 +41,26 @@ class SchemaTest(TestCase):
 class ValidationTest(TestCase):
 
     def setUp(self):
-        pass
-
-    def test_validate(self):
-        schema = {
+        self.schema =  {
                     "name": str,
                     u"age": int,
                     "bool": bool,
                     "float": float,
-                    "card_id": [int],
+                    "card_ids": [int],
                     "friends": [
                                     {
                                         "name": str,
                                         "card_id": [int]
                                     }
                                 ]
-                 
                     }
-        data = {
+
+        self.data = {
                     "name": "foo",
                     u"age": 22,
                     "bool": True,
                     "float": 1.22,
-                    "card_id": [1,2,3,4,5],
+                    "card_ids": [1,2,3,4,5],
                     "friends": [
                                     {
                                         "name": "ffff",
@@ -74,11 +71,16 @@ class ValidationTest(TestCase):
                                         "card_id": [22,32,42]
                                     }
                                 ]
-                 
                     }
-        sjv = SimpleJsonValidator(schema)
-        self.assertTrue(sjv.validate(data))
 
+    def test_validate(self):
+        sjv = SimpleJsonValidator(self.schema)
+        self.assertTrue(sjv.validate(self.data))
+
+    def test_validate_list(self):
+        sjv = SimpleJsonValidator(self.schema)
+        self.data["card_ids"].append("6")
+        self.assertRaises((ValidationError), sjv.validate, self.data)
 
 
 
