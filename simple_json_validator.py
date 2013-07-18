@@ -91,7 +91,6 @@ class SimpleJsonValidator(object):
         key = str(key)
         if key:
             path += "." + key
-        print path
         if self.is_dict(schema):
             self.validate_dict(data, schema, key, path)
         elif self.is_list(schema):
