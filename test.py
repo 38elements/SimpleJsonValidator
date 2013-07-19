@@ -47,12 +47,17 @@ class ValidationTest(TestCase):
                     "bool": bool,
                     "float": float,
                     "card_ids": [int],
+                    "data" : {
+                                "name": str,
+                                "age": int
+                            },
                     "friends": [
                                     {
                                         "name": str,
                                         "card_id": [int]
                                     }
                                 ]
+
                     }
 
         self.data = {
@@ -61,7 +66,15 @@ class ValidationTest(TestCase):
                     "bool": True,
                     "float": 1.22,
                     "card_ids": [1,2,3,4,5],
+                    "data" : {
+                                "name": "foo",
+                                "age": 12
+                            },
                     "friends": [
+                                    {
+                                        "name": u"FFFF",
+                                        "card_id": []
+                                    },
                                     {
                                         "name": "ffff",
                                         "card_id": [2,3,4]
@@ -72,16 +85,55 @@ class ValidationTest(TestCase):
                                     }
                                 ]
                     }
+        self.sjv = SimpleJsonValidator(self.schema)
 
     def test_validate(self):
-        sjv = SimpleJsonValidator(self.schema)
-        self.assertTrue(sjv.validate(self.data))
+        self.assertTrue(self.sjv.validate(self.data))
 
-    def test_validate_list(self):
-        sjv = SimpleJsonValidator(self.schema)
+    def test_validate_str_type(self):
+        """ strの型が合わない """
+        self.data["str"] = 123
+        self.assertRaises((ValidationError), self.sjv.validate, self.data)
+
+    def test_validate_float_type(self):
+        """ floatの型が合わない """
+        self.data["float"] = 1
+        self.assertRaises((ValidationError), self.sjv.validate, self.data)
+
+    def test_validate_int_type(self):
+        """ intの型が合わない """
+        self.data[u"age"] = 1.09
+        self.assertRaises((ValidationError), self.sjv.validate, self.data)
+
+    def test_validate_bool_type(self):
+        """ boolの型が合わない """
+        self.data["bool"] = 1
+        self.assertRaises((ValidationError), self.sjv.validate, self.data)
+
+    def test_validate_list_type(self):
+        """ リストの型が合わない """
+        self.data["card_ids"] = "[]"
+        self.assertRaises((ValidationError), self.sjv.validate, self.data)
+
+    def test_validate_list_child_type(self):
+        """ リストの要素の型が合わない """
         self.data["card_ids"].append("6")
-        self.assertRaises((ValidationError), sjv.validate, self.data)
+        self.assertRaises((ValidationError), self.sjv.validate, self.data)
 
+    def test_validate_dict_type(self):
+        """ dictの型が合わない """
+        self.data["data"] = "[]"
+        self.assertRaises((ValidationError), self.sjv.validate, self.data)
+
+    def test_validate_dict_key(self):
+        """ dictのkeyの数が合わない """
+        self.data["data"]["foo"] = "1"
+        self.assertRaises((ValidationError), self.sjv.validate, self.data)
+
+    def test_validate_dict_value(self):
+        """ dictのvalueが合わない """
+        self.data["data"]["age"] = "1"
+        self.assertRaises((ValidationError), self.sjv.validate, self.data)
 
 
 if __name__ == '__main__':
