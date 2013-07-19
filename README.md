@@ -1,5 +1,6 @@
 SimpleJsonValidator
 ===================
+[![Build Status](https://travis-ci.org/38elements/SimpleJsonValidator.png)](https://travis-ci.org/38elements/SimpleJsonValidator)  
 Json形式のデータに対してスキーマを定義して型チェックを行なうプログラム。  
 RedisやmemcacheでJsonを文字列で保存する際のチェックに用いる。
   
