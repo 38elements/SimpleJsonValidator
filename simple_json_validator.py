@@ -39,9 +39,14 @@ class SimpleJsonValidator(object):
             raise SchemaError("InValid lengh: list len is not 1. path=%s" % (path,))
         return True
 
-    def check_schema(self, data, key="", path=""):
+    def check_schema(self, data, key="", path="", is_list_index=False):
         key = str(key)
-        path += "." + key
+
+        if is_list_index:
+            path += key
+        elif key:
+            path += "." + key
+
         if not isinstance(data, self.__structures) and not data in self.__types:
             raise SchemaError("InValid type at key=%s path=%s.  schema is %s" % (key, path, pprint.pformat(data)))
         if self.is_dict(data):
@@ -50,7 +55,7 @@ class SimpleJsonValidator(object):
                 self.check_schema(target_data, target_key, path)
         elif self.is_list(data):
             self.check_schema_list(data, path)
-            self.check_schema(data[0], "[0]", path)
+            self.check_schema(data[0], "[0]", path, True)
         return True
 
     def validate_dict(self, data, schema, key, path):
@@ -68,7 +73,7 @@ class SimpleJsonValidator(object):
         if not self.is_list(data):
             raise ValidationError("ValidationError: %s is not list. key=%s, path=%s, data=%s" % (pprint.pformat(data), key, path, pprint.pformat(data)))
         for i, d in enumerate(data):
-            self.validate(d, schema[0], ("[%d]" % i), path)
+            self.validate(d, schema[0], ("[%d]" % i), path, True)
 
     def validate_string(self, data, key, path):
         if not self.is_string(data):
@@ -86,11 +91,15 @@ class SimpleJsonValidator(object):
         if not self.is_bool(data):
             raise ValidationError("ValidationError: %s is not bool. key=%s, path=%s, data=%s" % (pprint.pformat(data), key, path, pprint.pformat(data)))
 
-    def validate(self, data, schema=None, key="", path=""):
+    def validate(self, data, schema=None, key="", path="", is_list_index=False):
         schema = self.__schema if schema == None else schema
         key = str(key)
-        if key:
+
+        if is_list_index:
+            path += key
+        elif key:
             path += "." + key
+
         if self.is_dict(schema):
             self.validate_dict(data, schema, key, path)
         elif self.is_list(schema):
@@ -108,8 +117,10 @@ class SimpleJsonValidator(object):
         return True
 
 
+
 class ValidationError(Exception):
     pass
+
 
 
 class SchemaError(Exception):
